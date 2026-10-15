@@ -392,7 +392,7 @@ class Component extends DCLogic {
       showFps: (this.props.showFps ?? true) && s.ready,
       fpsText: s.stats ? String(s.stats.fps) : '--',
       fpsColor: !s.stats ? '#888888' : s.stats.fps >= 50 ? '#5ee08a' : s.stats.fps >= 30 ? '#f2c94c' : '#ff6b6b',
-      fpsInfo: s.stats ? ('Sifat: ' + (['Past', "O'rta", 'Yuqori'][s.stats.quality] || 'Yuqori') + ' · ' + s.stats.pr.toFixed(2).replace(/0$/, '') + '×') : 'o\u2018lchanmoqda…',
+      fpsInfo: s.stats ? ('Sifat: ' + (['Past', "O'rta", 'Yuqori', 'Ultra'][s.stats.quality] || 'Yuqori') + ' · ' + s.stats.pr.toFixed(2).replace(/0$/, '') + '×') : 'o\u2018lchanmoqda…',
     };
   }
 }
