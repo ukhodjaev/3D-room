@@ -31,7 +31,7 @@ class Component extends DCLogic {
     if (this.api || !this.canvas) return;
     if (!window.Setup3D) {
       this.tries = (this.tries || 0) + 1;
-      if (this.tries > 200) { this.fail("3D dvigatel fayli yuklanmadi. Internet aloqasini tekshirib, qayta urinib ko'ring."); return; }
+      if (this.tries > 600) { this.fail("3D dvigatel fayli yuklanmadi. Internet aloqasini tekshirib, qayta urinib ko'ring."); return; }
       this.bootTimer = setTimeout(() => this.boot(), 100);
       return;
     }
@@ -47,8 +47,12 @@ class Component extends DCLogic {
         onPhoneWrong: () => { this.tone(180, 0.16, 'square', 0.035); setTimeout(() => this.tone(150, 0.2, 'square', 0.035), 170); },
         onVrLink: (k) => this.openLink(k),
         onVrHover: (k) => { if (k !== this.state.vrHover) this.setState({ vrHover: k }); if (k) this.tone(880, 0.05, 'sine', 0.02); },
+        // GPU context lost: wait for the browser to hand it back, then rebuild the scene on the same canvas;
+        // if it never comes back, a page reload is the only fix (the retry button does that)
+        onContextLost: () => { this.contextLost = true; clearTimeout(this.lostTimer); this.lostTimer = setTimeout(() => { if (this.contextLost) this.fail("Videokarta bilan aloqa uzildi. Sahifani yangilang."); }, 6000); },
+        onContextRestored: () => { this.contextLost = false; clearTimeout(this.lostTimer); setTimeout(() => { this.teardown(); this.createFails = 0; this.tries = 0; this.boot(); }, 50); },
         onStats: (st) => { if (this.props.showFps ?? true) this.setState({ stats: st }); },
-        onReady: () => { this.setState({ ready: true }); this.focusRoot(); this.curtainTimer = setTimeout(() => this.setState({ curtain: false }), 650); },
+        onReady: () => { this.createFails = 0; this.setState({ ready: true, failed: false, curtain: true }); this.focusRoot(); this.curtainTimer = setTimeout(() => this.setState({ curtain: false }), 650); },
       });
       if (this.api.setVideo) this.api.setVideo(this.video);
       if (this.api.setPainting) this.api.setPainting('assets/painting.jpg');
@@ -57,17 +61,23 @@ class Component extends DCLogic {
       if (this.api.redrawNeon && document.fonts && document.fonts.load) document.fonts.load('400 120px "Neonderthaw"').then(() => this.api && this.api.redrawNeon()).catch(() => {});
       this.api.update(this.sceneState());
     } catch (e) {
-      this.fail('Grafik kontekstni yaratib bo‘lmadi. Boshqa brauzerda yoki apparat tezlashtirish yoqilgan holda urinib ko‘ring.');
+      try { console.error('[Setap 3D] sahna yaratilmadi:', e); } catch (x) {}
+      if (this.api) { try { this.api.dispose(); } catch (x) {} this.api = null; }
+      this.createFails = (this.createFails || 0) + 1;
+      if (this.createFails <= 3) { this.bootTimer = setTimeout(() => this.boot(), 700 * this.createFails); return; }
+      this.fail('Grafik kontekstni yaratib bo‘lmadi. Brauzerda apparat tezlashtirish yoqilganini tekshiring yoki sahifani yangilang.');
     }
   }
   fail(msg) { this.setState({ failed: true, failMsg: msg, curtain: true, ready: false }); }
   teardown() {
-    clearTimeout(this.bootTimer); clearTimeout(this.curtainTimer); (this.vrTimers || []).forEach(clearTimeout);
+    clearTimeout(this.bootTimer); clearTimeout(this.curtainTimer); clearTimeout(this.lostTimer); (this.vrTimers || []).forEach(clearTimeout);
     if (this.api) { try { this.api.dispose(); } catch (e) {} this.api = null; }
   }
   retry() {
+    if (this.contextLost) { try { window.location.reload(); } catch (e) {} return; }
     if (!window.Setup3D) { try { window.location.reload(); } catch (e) {} return; }
     this.teardown(); this.tries = 0;
+    this.createFails = 0;
     this.setState({ failed: false, failMsg: '', curtain: true, ready: false }, () => this.boot());
   }
   componentWillUnmount() { this.teardown(); this.stopMusic(); clearTimeout(this.sysTimer); this.stopCamera(); }
