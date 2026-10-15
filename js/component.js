@@ -378,7 +378,7 @@ class Component extends DCLogic {
       onRootDown: (e) => { const t = e && e.target; if (t && t.closest && t.closest('button')) return; this.focusRoot(); },
       tipText: s.hoverSub === 'power' ? (s.power ? "Quvvat tugmasi · o'chirish" : 'Quvvat tugmasi · yoqish') : s.hoverSub === 'webcam' ? (s.camera === 'on' ? 'Kamera · yopish' : 'Kamera · ochish') : s.hoverSub === 'rgb' ? (s.rgbOn ? "RGB tugmasi · o'chirish" : 'RGB tugmasi · yoqish') : hp ? hp.tip : '', tipOpacity: hp && !s.vr ? 1 : 0,
       isFocused: s.focus !== 'overview' && !s.vr && !s.vrFade,
-      spotMounted: !!this.spotOpened, spotClass: s.focus === 'painting' && !s.vr && !s.vrFade ? 'spot panel' : 'spot off', spotHidden: s.focus === 'painting' ? 'false' : 'true',
+      spotMounted: !!this.spotOpened, spotClass: s.focus === 'painting' && !s.vr && !s.vrFade ? 'spot' : 'spot off', spotHidden: s.focus === 'painting' ? 'false' : 'true',
       inVr: s.vr, vrFadeOpacity: s.vrFade ? 1 : 0, vrFadePE: s.vrFade ? 'auto' : 'none', vrFadeScale: s.vrFade ? 1 : 1.6, exitVr: () => this.exitVr(),
       vrLabel: s.vrHover === 'instagram' ? 'Instagram sahifasiga o‘tish' : s.vrHover === 'telegram' ? 'Telegramda yozish' : s.vrHover === 'phone' ? 'Qo‘ng‘iroq qilish' : 'Atrofga qarash uchun suring · belgini bosing',
       vrMsg: s.vrMsg, hasVrMsg: !!s.vrMsg, hasPanel: !!p, pCat: p ? p.cat : '', pName: p ? p.name : '', pDesc: p ? p.desc : '',
