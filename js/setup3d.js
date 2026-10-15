@@ -62807,8 +62807,8 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
 
     // ================= stream deck =================
     const deck = new T.Group(); scene.add(deck);
-    const stand = rbox(0.1, 0.03, 0.06, 0.008, M.deckBody); stand.position.set(0, 0.015, -0.005); deck.add(stand);
-    const pad2 = new T.Group(); pad2.position.set(0, 0.035, 0); pad2.rotation.x = -0.9; deck.add(pad2);
+    const stand = rbox(0.1, 0.03, 0.05, 0.008, M.deckBody); stand.position.set(0, 0.015, -0.012); deck.add(stand);
+    const pad2 = new T.Group(); pad2.position.set(0, 0.038, 0.002); pad2.rotation.x = 0.62; deck.add(pad2); // face tilted toward the user
     pad2.add(rbox(0.118, 0.016, 0.084, 0.006, M.deckBody));
     const iconCanvas = makeCanvas(128 * 5, 128 * 3), deckTex = tex(iconCanvas);
     const deckBtns = [];
