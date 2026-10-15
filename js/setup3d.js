@@ -63229,7 +63229,7 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
     drawPhone();
     function setPhoto(url) {
       if (!url) return;
-      const im = new Image(); im.onload = () => { phoneImg = im; drawPhone(); }; im.src = url;
+      const im = new Image(); im.onload = () => { phoneImg = im; drawPhone(); drawScreen(); }; im.src = url;
     }
     phone.position.set(0.245, Y1, -0.13); phone.rotation.y = -0.22;
     tag(phone, 'phone');
@@ -63404,65 +63404,86 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
         g.fillText(S.sys === 'booting' ? 'Ishga tushirilmoqda\u2026' : 'O\u2018chirilmoqda\u2026', W / 2, H * (S.sys === 'booting' ? 0.78 : 0.58));
         g.textAlign = 'left'; screenTex.needsUpdate = true; return;
       }
-      g.drawImage(wallpaper(S.theme), 0, 0);
-      const light = S.theme === 2;
-      // desktop icons
-      [['pc', 'Kompyuter'], ['folder', 'Hujjatlar'], ['bin', 'Savat']].forEach((d, i) => {
-        icon(g, 90, 100 + i * 150, 72, d[0]);
-        g.fillStyle = light ? '#1b2333' : '#ffffff'; g.font = '500 22px "Sora", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'top';
-        g.fillText(d[1], 90, 148 + i * 150); g.textAlign = 'left';
-      });
-      // terminal window
-      const wx = 430, wy = 70, ww = 1540, wh = 760;
-      g.save(); g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 50; g.shadowOffsetY = 18; rrect(g, wx, wy, ww, wh, 16); g.fillStyle = '#0c0c10'; g.fill(); g.restore();
-      g.save(); rrect(g, wx, wy, ww, wh, 16); g.clip();
-      g.fillStyle = '#1d1d24'; g.fillRect(wx, wy, ww, 58);
-      g.fillStyle = '#0c0c10'; rrect(g, wx + 14, wy + 10, 340, 48, 10); g.fill(); g.fillRect(wx + 14, wy + 40, 340, 20);
-      icon(g, wx + 46, wy + 34, 28, 'term');
-      g.fillStyle = '#e8e8ee'; g.font = '500 22px "Sora", sans-serif'; g.textBaseline = 'middle'; g.fillText('Windows PowerShell', wx + 72, wy + 35);
-      g.fillStyle = '#9a9aa6'; g.fillText('+', wx + 380, wy + 32);
-      g.strokeStyle = '#c8c8d0'; g.lineWidth = 2;
-      const bx = wx + ww - 170; g.beginPath(); g.moveTo(bx, wy + 30); g.lineTo(bx + 20, wy + 30); g.stroke(); g.strokeRect(bx + 62, wy + 20, 20, 20);
-      g.beginPath(); g.moveTo(bx + 126, wy + 20); g.lineTo(bx + 146, wy + 40); g.moveTo(bx + 146, wy + 20); g.lineTo(bx + 126, wy + 40); g.stroke();
-      // terminal text
-      const fs = 30, lh = 40, tx = wx + 28, ty = wy + 82, maxW = ww - 60;
-      g.font = '500 ' + fs + 'px "JetBrains Mono", monospace'; g.textBaseline = 'top';
-      const prompt = 'PS C:\\Users\\Setap> ';
-      const rows = [];
-      const wrapPush = (str, col) => { let cur = ''; for (const ch of str) { if (g.measureText(cur + ch).width > maxW) { rows.push({ t: cur, c: col }); cur = ch; } else cur += ch; } rows.push({ t: cur, c: col }); };
-      (S.lines || []).forEach((l) => wrapPush(l.t, l.c || '#cccccc'));
-      const inputStart = rows.length; wrapPush(prompt + (S.input || ''), '#ffffff');
-      const maxRows = Math.floor((wh - 100) / lh);
-      const first = Math.max(0, rows.length - maxRows);
-      rows.slice(first).forEach((r, i) => {
-        const y = ty + i * lh, idx = first + i;
-        if (idx === inputStart && r.t.indexOf(prompt) === 0) {
-          g.fillStyle = '#5fd7ff'; g.fillText('PS ', tx, y);
-          g.fillStyle = '#e8e8ee'; g.fillText(prompt.slice(3), tx + g.measureText('PS ').width, y);
-          g.fillStyle = '#ffffff'; g.fillText(r.t.slice(prompt.length), tx + g.measureText(prompt).width, y);
-        } else { g.fillStyle = r.c; g.fillText(r.t, tx, y); }
-      });
-      if (caretOn) {
-        const last = rows[rows.length - 1]; const y = ty + (rows.length - 1 - first) * lh;
-        g.fillStyle = '#e8e8ee'; g.fillRect(tx + g.measureText(last.t).width + 2, y + 2, fs * 0.58, fs + 4);
-      }
-      g.restore();
-      // taskbar (centered)
-      const tbH = 70; g.fillStyle = light ? 'rgba(240,244,250,.82)' : 'rgba(18,20,28,.82)'; g.fillRect(0, H - tbH, W, tbH);
-      const icons = ['start', 'web', 'folder', 'term', 'gear'], spacing = 78, sx = W / 2 - ((icons.length - 1) * spacing) / 2;
-      icons.forEach((k, i) => {
-        if (k === 'term') { g.fillStyle = light ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.1)'; rrect(g, sx + i * spacing - 32, H - tbH + 7, 64, 56, 10); g.fill(); g.fillStyle = '#5fd7ff'; rrect(g, sx + i * spacing - 10, H - 8, 20, 4, 2); g.fill(); }
-        icon(g, sx + i * spacing, H - tbH / 2, 40, k);
-      });
-      const d = new Date();
-      g.fillStyle = light ? '#1b2333' : '#ffffff'; g.font = '500 22px "Sora", sans-serif'; g.textAlign = 'right'; g.textBaseline = 'middle';
-      g.fillText(String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'), W - 40, H - tbH / 2 - 13);
-      g.fillText(String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear(), W - 40, H - tbH / 2 + 15);
-      if (S.music) g.fillText('\u266a', W - 190, H - tbH / 2);
-      g.textAlign = 'left';
+      drawLock(g, W, H);
       if (S.camera && S.camera !== 'off') drawCameraWindow(g, W, H);
       g.strokeStyle = '#000'; g.lineWidth = 10; g.strokeRect(0, 0, W, H);
       screenTex.needsUpdate = true;
+    }
+    // ---- Windows sign-in screen: every password is wrong, nobody gets in ----
+    let lockPw = '', lockWrongT = 0, lockShakeT = 0, lockBusy = false;
+    function monitorKey(id, ch) {
+      if (!S.power || S.sys !== 'on' || lockBusy) return;
+      if (lockWrongT > 0 && (id === 'EN' || id === 'NEN' || id === 'NEN2')) { lockWrongT = 0; drawScreen(); return; } // "OK" on the error
+      if (id === 'EN' || id === 'NEN' || id === 'NEN2') {
+        if (!lockPw.length) return;
+        lockBusy = true; lockWrongT = -1; drawScreen(); // "checking\u2026"
+        setTimeout(() => { lockBusy = false; lockPw = ''; lockWrongT = 4; lockShakeT = 0.5; if (cb.onMonitorWrong) cb.onMonitorWrong(); drawScreen(); }, 900);
+        return;
+      }
+      if (id === 'BS') lockPw = lockPw.slice(0, -1);
+      else if (id === 'SP') lockPw += ' ';
+      else if (ch != null && ch.length === 1) lockPw += ch;
+      else if (id && id.length === 1) lockPw += id;
+      else return;
+      if (lockWrongT > 0) lockWrongT = 0;
+      lockPw = lockPw.slice(0, 32); drawScreen();
+    }
+    function drawLock(g, W, H) {
+      // blurred, dimmed wallpaper
+      g.save(); g.filter = 'blur(28px) brightness(.62)'; g.drawImage(wallpaper(S.theme), -40, -40, W + 80, H + 80); g.filter = 'none'; g.restore();
+      g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(0, 0, W, H);
+      const cx = W / 2, sx = lockShakeT > 0 ? Math.sin(lockShakeT * 70) * 22 * (lockShakeT / 0.5) : 0;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      // avatar
+      const ay = H * 0.33, ar = 118;
+      g.save(); g.beginPath(); g.arc(cx, ay, ar, 0, 7); g.clip();
+      if (phoneImg) { const sc = Math.max(ar * 2 / phoneImg.width, ar * 2 / phoneImg.height), dw = phoneImg.width * sc, dh = phoneImg.height * sc; g.drawImage(phoneImg, cx - dw / 2, ay - dh * 0.4, dw, dh); }
+      else { g.fillStyle = '#5b6170'; g.fillRect(cx - ar, ay - ar, ar * 2, ar * 2); g.fillStyle = '#c9cfdb'; g.beginPath(); g.arc(cx, ay - 24, 44, 0, 7); g.fill(); g.beginPath(); g.ellipse(cx, ay + 92, 84, 64, 0, 0, 7); g.fill(); }
+      g.restore();
+      g.fillStyle = '#ffffff'; g.font = '600 48px "Sora", sans-serif'; g.fillText('Umar', cx, ay + ar + 62);
+      const by = ay + ar + 150, bw = 520, bh = 64;
+      if (lockWrongT > 0) {
+        g.font = '400 28px "Sora", sans-serif'; g.fillStyle = '#ffffff';
+        g.fillText('Parol noto\u2018g\u2018ri. Qayta urinib ko\u2018ring.', cx + sx, by + 10);
+        g.fillStyle = 'rgba(255,255,255,.16)'; rrect(g, cx - 110 + sx, by + 54, 220, 58, 8); g.fill();
+        g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 2; rrect(g, cx - 110 + sx, by + 54, 220, 58, 8); g.stroke();
+        g.fillStyle = '#ffffff'; g.font = '500 26px "Sora", sans-serif'; g.fillText('OK', cx + sx, by + 84);
+      } else if (lockWrongT < 0) {
+        drawSpinner(g, cx, by + 30, performance.now() / 1000);
+        g.fillStyle = '#ffffff'; g.font = '400 26px "Sora", sans-serif'; g.fillText('Xush kelibsiz', cx, by + 100);
+      } else {
+        const x0 = cx - bw / 2 + sx;
+        g.fillStyle = 'rgba(255,255,255,.12)'; rrect(g, x0, by, bw, bh, 8); g.fill();
+        g.strokeStyle = 'rgba(255,255,255,.4)'; g.lineWidth = 2; rrect(g, x0, by, bw, bh, 8); g.stroke();
+        g.fillStyle = '#ffffff'; rrect(g, x0 + 6, by + bh - 5, bw - 12, 3, 1.5); g.fill(); // focus underline
+        g.textAlign = 'left';
+        if (lockPw.length) {
+          for (let i = 0; i < lockPw.length; i++) { g.beginPath(); g.arc(x0 + 30 + i * 26, by + bh / 2, 7, 0, 7); g.fill(); }
+          if (caretOn) g.fillRect(x0 + 30 + lockPw.length * 26 - 4, by + 16, 2.5, bh - 32);
+        } else {
+          g.fillStyle = 'rgba(255,255,255,.62)'; g.font = '400 26px "Sora", sans-serif'; g.fillText('Parol', x0 + 22, by + bh / 2 + 1);
+          if (caretOn) { g.fillStyle = '#ffffff'; g.fillRect(x0 + 20, by + 16, 2.5, bh - 32); }
+        }
+        // submit arrow
+        g.fillStyle = 'rgba(255,255,255,.14)'; rrect(g, x0 + bw - 58, by + 8, 50, bh - 16, 6); g.fill();
+        g.strokeStyle = '#ffffff'; g.lineWidth = 3.5; g.lineCap = 'round'; g.lineJoin = 'round';
+        const ax = x0 + bw - 33, ayy = by + bh / 2; g.beginPath(); g.moveTo(ax - 11, ayy); g.lineTo(ax + 11, ayy); g.moveTo(ax + 2, ayy - 9); g.lineTo(ax + 11, ayy); g.lineTo(ax + 2, ayy + 9); g.stroke();
+        g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.85)'; g.font = '400 24px "Sora", sans-serif';
+        g.fillText('Parolni unutdingizmi?', cx, by + bh + 52);
+        g.fillText('Kirish parametrlari', cx, by + bh + 96);
+      }
+      // bottom-left clock, bottom-right system icons
+      const d = new Date();
+      g.textAlign = 'left'; g.fillStyle = '#ffffff';
+      g.font = '300 64px "Sora", sans-serif'; g.fillText(String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'), 60, H - 130);
+      const MON = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
+      g.font = '400 28px "Sora", sans-serif'; g.fillText(d.getDate() + '-' + MON[d.getMonth()], 64, H - 76);
+      g.strokeStyle = '#ffffff'; g.lineWidth = 3.5; g.lineCap = 'round';
+      const iy = H - 70;
+      for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(W - 230, iy + 12, 10 + k * 9, -Math.PI * 0.75, -Math.PI * 0.25); g.stroke(); } // wifi
+      g.beginPath(); g.arc(W - 150, iy, 16, -Math.PI * 0.32, Math.PI * 1.32); g.stroke(); g.beginPath(); g.moveTo(W - 150, iy - 22); g.lineTo(W - 150, iy - 2); g.stroke(); // power
+      g.beginPath(); g.arc(W - 80, iy, 18, 0, 7); g.stroke(); g.beginPath(); g.arc(W - 80, iy - 5, 6, 0, 7); g.stroke(); g.beginPath(); g.arc(W - 80, iy + 14, 11, Math.PI * 1.15, Math.PI * 1.85); g.stroke(); // accessibility-ish
+      g.textAlign = 'left';
     }
     let camVideo = null;
     function drawCameraWindow(g, W, H) {
@@ -64012,6 +64033,8 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
       blinkT += dt;
       if (S.power && (S.sys === 'booting' || S.sys === 'shutting')) { animT += dt; if (animT > 0.08) { animT = 0; drawScreen(); } }
       if (S.power && S.sys === 'on' && S.camera === 'on') { camAcc += dt; if (camAcc > 1 / 24) { camAcc = 0; drawScreen(); } }
+      if (lockShakeT > 0 || lockWrongT < 0) { lockShakeT = Math.max(0, lockShakeT - dt); drawScreen(); }
+      if (lockWrongT > 0) { lockWrongT -= dt; if (lockWrongT <= 0) { lockWrongT = 0; drawScreen(); } }
       if (blinkT > 0.53) { blinkT = 0; caretOn = !caretOn; if (S.power && S.sys === 'on') drawScreen(); }
       if (shadowFrames > 0) { renderer.shadowMap.needsUpdate = true; shadowFrames--; }
       finish.uniforms.uTime.value = (now * 0.001) % 50;
@@ -64045,6 +64068,7 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
       setPainting,
       setPhoto,
       phoneKey,
+      monitorKey,
       enterVR,
       exitVR,
       inVR: () => vrMode,

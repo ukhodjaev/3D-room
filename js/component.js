@@ -3,7 +3,7 @@ class Component extends DCLogic {
   constructor(...args) {
     super(...args);
     this.PARTS = {
-      monitor: { cat: 'Displey', name: "34″ ultrawide monitor", tip: 'Monitor', desc: "Egilgan ekran ko'zni bir xil masofada ushlaydi. Klaviaturada yozganingiz ekrandagi chatda chiqadi.", specs: [['Diagonal', '34″ · 21:9'], ['Egrilik', '1500R'], ['Ruxsat', '3440 × 1440'], ['Chastota', '144 Hz']] },
+      monitor: { cat: 'Displey', name: "34″ ultrawide monitor", tip: 'Monitor', desc: "Kompyuter qulflangan: Windows parol so'raydi.", specs: [['Diagonal', '34″ · 21:9'], ['Egrilik', '1500R'], ['Ruxsat', '3440 × 1440'], ['Chastota', '144 Hz']] },
       pc: { cat: 'Tizim bloki', name: "O'yin kompyuteri", tip: "O'yin kompyuteri", desc: "Shisha panelli korpus: suyuq sovutish, uch ventilyatorli videokarta va RGB xotira. Yuqoridagi quvvat tugmasi ishlaydi.", specs: [['Korpus', 'Mid-tower, shisha'], ['Sovutish', '240 mm AIO'], ['Ventilyator', '7 × 120 mm RGB'], ['Videokarta', '3 fan · 2.5 slot']] },
       keyboard: { cat: 'Kiritish', name: 'Mexanik klaviatura', tip: 'Klaviatura', desc: "To'liq o'lchamli, oq PBT qopqoqli. Tugmalarni bosing — matn monitorga yoziladi. Haqiqiy klaviaturangiz ham ishlaydi.", specs: [['Tugmalar', '104'], ['Qopqoqlar', 'Oq PBT'], ['Yoritish', 'RGB pastki nur']] },
       mouse: { cat: 'Boshqaruv', name: "O'yin sichqonchasi", tip: 'Sichqoncha', desc: "Chap tugmasi ekran manzarasini almashtiradi, o'ng tugmasi yozilgan matnni tozalaydi.", specs: [['Shakl', 'Ergonomik'], ['Tugmalar', "2 + g'ildirak"], ['Yoritish', 'RGB']] },
@@ -42,6 +42,7 @@ class Component extends DCLogic {
         onHover: (part, x, y, sub) => this.onHover(part, x, y, sub),
         onAnyDown: () => this.focusRoot(),
         onDrop: (k, what) => { this.tone((what === 'keyboard' ? 70 : what === 'vr' ? 80 : 90) + k * 40, 0.12, 'sine', 0.05 + k * 0.12); this.tone(1200, 0.02, 'square', 0.01 * k); },
+        onMonitorWrong: () => { this.tone(220, 0.12, 'sine', 0.05); setTimeout(() => this.tone(165, 0.22, 'sine', 0.05), 130); },
         onPhoneTap: () => this.tone(1500, 0.03, 'sine', 0.03),
         onPhoneWrong: () => { this.tone(180, 0.16, 'square', 0.035); setTimeout(() => this.tone(150, 0.2, 'square', 0.035), 170); },
         onVrLink: (k) => this.openLink(k),
@@ -211,6 +212,12 @@ class Component extends DCLogic {
     this.mechKey(id);
     if (id === 'CAPS') { this.setState({ caps: !this.state.caps }); return; }
     if (!this.state.power || this.state.sys !== 'on') return;
+    // the monitor shows a locked Windows sign-in screen: typing goes into its password box
+    if (this.api && this.api.monitorKey) {
+      const c = ch != null ? (this.state.caps && /^[a-z]$/.test(ch) ? ch.toUpperCase() : ch) : (id.length === 1 ? (this.state.caps ? id.toUpperCase() : id.toLowerCase()) : null);
+      this.api.monitorKey(id, c);
+      return;
+    }
     let input = this.state.input;
     if (id === 'EN' || id === 'NEN' || id === 'NEN2') { this.runCommand(input); return; }
     if (id === 'BS') input = input.slice(0, -1);
