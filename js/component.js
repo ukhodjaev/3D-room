@@ -177,9 +177,38 @@ class Component extends DCLogic {
     const i = this.RGB_CYCLE.indexOf(cur);
     this.click(); this.setState({ rgb: this.RGB_CYCLE[(i + 1) % this.RGB_CYCLE.length] });
   }
+  // mechanical switch sound: click (filtered noise) + thock (body resonance) + bottom-out
+  mechKey(id) {
+    const ac = this.ctx(); if (!ac) return;
+    if (!this.noiseBuf || this.noiseBuf.sampleRate !== ac.sampleRate) {
+      const n = Math.floor(ac.sampleRate * 0.12), b = ac.createBuffer(1, n, ac.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.noiseBuf = b;
+    }
+    const big = id === 'SP' || id === 'EN' || id === 'NEN' || id === 'BS' || id === 'LSHIFT' || id === 'CAPS';
+    const t = ac.currentTime, jit = 0.9 + Math.random() * 0.2;
+    const out = ac.createGain(); out.gain.value = big ? 0.9 : 0.75; out.connect(ac.destination);
+    const burst = (at, dur, freq, q, vol) => {
+      const src = ac.createBufferSource(); src.buffer = this.noiseBuf;
+      const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq * jit; f.Q.value = q;
+      const g = ac.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(vol, at + 0.0015); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      src.connect(f); f.connect(g); g.connect(out); src.start(at, Math.random() * 0.05); src.stop(at + dur + 0.01);
+    };
+    const thock = (at, freq, dur, vol) => {
+      const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine';
+      o.frequency.setValueAtTime(freq * jit * 1.6, at); o.frequency.exponentialRampToValueAtTime(freq * jit, at + 0.02);
+      g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(vol, at + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+      o.connect(g); g.connect(out); o.start(at); o.stop(at + dur + 0.01);
+    };
+    burst(t, 0.012, 4200, 1.2, 0.22);                    // switch click
+    burst(t + 0.006, 0.035, big ? 900 : 1600, 0.9, 0.16); // keycap clack
+    thock(t + 0.006, big ? 120 : 190, big ? 0.09 : 0.06, big ? 0.32 : 0.22); // case thock
+    if (big) burst(t + 0.018, 0.03, 2600, 2, 0.08);      // stabilizer rattle
+    burst(t + 0.07 + Math.random() * 0.02, 0.018, 3000, 1.5, 0.07); // key release
+  }
   typeKey(id, ch) {
     if (this.api) this.api.pressKey(id);
-    this.click();
+    this.mechKey(id);
     if (id === 'CAPS') { this.setState({ caps: !this.state.caps }); return; }
     if (!this.state.power || this.state.sys !== 'on') return;
     let input = this.state.input;

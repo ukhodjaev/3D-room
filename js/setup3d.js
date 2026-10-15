@@ -62372,8 +62372,8 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true; controls.dampingFactor = 0.075;
     controls.enablePan = true; controls.screenSpacePanning = true; controls.panSpeed = 0.6;
-    controls.rotateSpeed = 0.55; controls.zoomSpeed = 0.7;
-    controls.minDistance = 0.14; controls.maxDistance = 3.2;
+    controls.rotateSpeed = 0.55; controls.zoomSpeed = 0.9;
+    controls.minDistance = 0.14; controls.maxDistance = 4.4;
     controls.minPolarAngle = 0.25; controls.maxPolarAngle = 1.48;
     controls.minAzimuthAngle = -1.15; controls.maxAzimuthAngle = 1.15;
     controls.touches = { ONE: T.TOUCH.ROTATE, TWO: T.TOUCH.DOLLY_PAN };
@@ -62458,8 +62458,10 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
     };
 
     // ================= room =================
-    const wall = new T.Mesh(new T.PlaneGeometry(7, 3.2), M.wall); wall.position.set(0, 1.6, -0.84); wall.receiveShadow = true; scene.add(wall);
-    const floor = new T.Mesh(new T.PlaneGeometry(7, 6), M.floor); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+    const wallGeo = new T.PlaneGeometry(12, 4.4); { const u = wallGeo.attributes.uv; for (let i = 0; i < u.count; i++) u.setXY(i, u.getX(i) * 12 / 7, u.getY(i) * 4.4 / 3.2); }
+    const wall = new T.Mesh(wallGeo, M.wall); wall.position.set(0, 2.2, -0.84); wall.receiveShadow = true; scene.add(wall);
+    const floorGeo = new T.PlaneGeometry(12, 11); { const u = floorGeo.attributes.uv; for (let i = 0; i < u.count; i++) u.setXY(i, u.getX(i) * 12 / 7, u.getY(i) * 11 / 6); }
+    const floor = new T.Mesh(floorGeo, M.floor); floor.rotation.x = -Math.PI / 2; floor.position.z = 2.5; floor.receiveShadow = true; scene.add(floor);
     const skirting = rbox(7, 0.07, 0.015, 0.004, M.skirting); skirting.position.set(0, 0.035, -0.832); scene.add(skirting);
     const ledChannel = rbox(1.56, 0.012, 0.012, 0.004, M.silverMatte); ledChannel.position.set(0, Y0 + 0.012, -0.83); scene.add(ledChannel);
     const ledDiff = new T.Mesh(new T.BoxGeometry(1.54, 0.004, 0.002), new T.MeshStandardMaterial({ color: '#000', emissive: new T.Color('#ff4fd8'), emissiveIntensity: 2.5 }));
@@ -63335,7 +63337,7 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
     function presetPose(name) {
       const p = PRESET[name] || PRESET.overview;
       const f = aspect >= 1.45 ? 1 : aspect >= 1 ? 1.45 / aspect : Math.min(3.2, 1.1 / aspect);
-      controls.maxDistance = Math.max(3.2, p.o.length() * f * 1.25);
+      controls.maxDistance = Math.max(4.4, p.o.length() * f * 1.7);
       return { pos: p.t.clone().add(p.o.clone().multiplyScalar(f)), target: p.t.clone() };
     }
     let tween = null, currentView = 'overview';
