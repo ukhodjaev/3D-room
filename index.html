@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setap 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@500;600;700&family=Neonderthaw&family=Sacramento&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#120d16}
+a{color:#3ee0c5}a:hover{color:#8af0de}
+.glass{background:rgba(16,12,20,.62);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);box-shadow:0 10px 40px rgba(20,0,30,.28)}
+.seg{border:0;background:transparent;color:#d9dce6;height:36px;padding:0 14px;border-radius:999px;font:500 13px/1 'Sora',sans-serif;cursor:pointer;transition:background .2s,color .2s}
+.seg:hover{background:rgba(255,255,255,.08);color:#ffffff}
+.seg:focus-visible,.icon:focus-visible,.act:focus-visible,.back:focus-visible{outline:2px solid #3ee0c5;outline-offset:2px}
+.icon{width:36px;height:36px;border-radius:999px;border:0;background:transparent;color:#e8ebf0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s}
+.icon:hover{background:rgba(255,255,255,.1)}
+.act{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#f1f2f6;border-radius:10px;height:36px;padding:0 12px;font:500 12.5px/1 'Sora',sans-serif;cursor:pointer;transition:background .2s,border-color .2s}
+.act:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24)}
+.act:active{transform:translateY(1px)}
+.back{border:0;background:transparent;color:#c9cdd8;display:flex;align-items:center;gap:6px;height:32px;padding:0 6px;border-radius:8px;font:500 12.5px/1 'Sora',sans-serif;cursor:pointer}
+.back:hover{color:#ffffff;background:rgba(255,255,255,.06)}
+.ring{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#3ee0c5;animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.panel{animation:rise .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.panel{animation:none}.ring{animation-duration:2.4s}}
+</style>
+</head>
+<body>
+<div id="root" tabindex="0" aria-label="Setap 3D — interaktiv kompyuter setapi" style="position: relative; width: 100%; height: 100vh; min-height: 560px; overflow: hidden; background: #120d16; font-family: 'Sora', sans-serif; color: #f1f2f6; outline: none">
+  <video id="video" muted playsinline autoplay aria-hidden="true" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none"></video>
+  <canvas id="canvas" aria-label="Kompyuter setapining 3D sahnasi" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab"></canvas>
+
+  <div id="fps" class="glass" role="status" style="position: absolute; right: 16px; top: 16px; padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 10px; pointer-events: none; font-family: 'JetBrains Mono', monospace">
+    <div id="fpsDot" style="width: 8px; height: 8px; border-radius: 50%"></div>
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <div style="font-size: 15px; font-weight: 700; color: #fff; line-height: 1"><span id="fpsText">--</span> <span style="font-size: 11px; font-weight: 500; color: rgba(255,255,255,.7)">FPS</span></div>
+      <div id="fpsInfo" style="font-size: 10.5px; color: rgba(255,255,255,.72); line-height: 1.2"></div>
+    </div>
+  </div>
+
+  <div id="tip" class="glass" role="tooltip" style="position: absolute; left: 0; top: 0; padding: 7px 11px; border-radius: 9px; font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s"></div>
+
+  <div style="position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; pointer-events: none">
+    <button id="back" type="button" class="act glass panel" style="display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px; pointer-events: auto">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+      Orqaga
+    </button>
+  </div>
+
+  <div id="vrUi">
+    <div style="position: absolute; left: 16px; top: 16px">
+      <button id="vrExit" type="button" class="act glass panel" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3h-3l-2-3h-2l-2 3H6a3 3 0 0 1-3-3z"></path><path d="M4 4l16 16"></path></svg>
+        VR dan chiqish
+      </button>
+    </div>
+    <div style="position: absolute; left: 16px; right: 16px; bottom: 22px; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none">
+      <div id="vrMsg" class="glass panel" role="status" style="padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 600"></div>
+      <div id="vrLabel" class="glass" style="padding: 8px 14px; border-radius: 999px; font-size: 12px; color: rgba(255,255,255,.82)"></div>
+    </div>
+  </div>
+
+  <div id="vrFade" aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .55s ease; background: #000">
+    <div id="vrLens" style="position: absolute; inset: -20%; transition: transform .6s ease; background: radial-gradient(circle at 34% 50%, rgba(140,60,255,.35) 0%, rgba(0,0,0,0) 22%), radial-gradient(circle at 66% 50%, rgba(255,60,200,.3) 0%, rgba(0,0,0,0) 22%)"></div>
+  </div>
+
+  <div id="curtain" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #120d16; transition: opacity .6s ease">
+    <div id="loading" style="display: flex; flex-direction: column; align-items: center; gap: 14px">
+      <div class="ring" aria-hidden="true"></div>
+      <div role="status" style="font-size: 13px; color: rgba(241,242,246,.7)">3D sahna tayyorlanmoqda…</div>
+    </div>
+    <div id="failed" role="alert" style="max-width: 340px; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; padding: 0 24px">
+      <div style="font-size: 16px; font-weight: 600">3D sahnani ochib bo'lmadi</div>
+      <div id="failMsg" style="font-size: 13px; line-height: 1.5; color: rgba(241,242,246,.7)"></div>
+      <button id="retry" type="button" class="act">Qayta urinish</button>
+    </div>
+  </div>
+</div>
+<script src="js/config.js"></script>
+<script src="js/setup3d.js"></script>
+<script src="js/app.js"></script>
+<script src="js/component.js"></script>
+</body>
+</html>

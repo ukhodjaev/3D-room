@@ -1,0 +1,10 @@
+{
+  "name": "setup-3d",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interaktiv 3D kompyuter setapi (three.js)",
+  "scripts": {
+    "start": "npx --yes serve -l 5173 .",
+    "dev": "npx --yes serve -l 5173 ."
+  }
+}
