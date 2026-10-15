@@ -63328,7 +63328,7 @@ window.__R["postprocessing/SMAAPass.js"]={SMAAPass};Object.assign(window.THREE_A
       vr: { t: V(-0.5416, Y1 + 0.055, -0.1127), o: V(0.215, 0.05, 0.21) }, vrOld: { t: V(-0.58, Y1 + 0.05, -0.17), o: V(0.2, 0.2, 0.42) },
       plant: { t: V(-0.8, Y0 + 0.15, -0.52), o: V(0.28, 0.08, 0.58) },
       arcade: { t: V(-0.36, Y0 + 0.065, -0.36), o: V(0.06, 0.05, 0.3) },
-      painting: { t: V(-0.86, 1.29, -0.82), o: V(0.06, -0.02, 0.95) },
+      painting: { t: V(-0.70, 1.29, -0.82), o: V(0.0, -0.02, 1.1) }, // painting sits left, Spotify player on the right
       sign: { t: V(0.5, 1.47, -0.84), o: V(-0.05, -0.04, 1.0) },
       phone: { t: V(0.245, Y1 + 0.008, -0.13), o: V(0.0, 0.29, 0.095) },
       desk: { t: V(0.12, Y1 + 0.03, -0.19), o: V(0.06, 0.48, 0.78) },

@@ -26,6 +26,9 @@ window.DCLogic = DCLogic;
       show($('curtain'), v.showCurtain); $('curtain').style.opacity = v.curtainOpacity;
       show($('loading'), v.loadingNow); show($('failed'), v.failed); $('failMsg').textContent = v.failMsg;
       show($('vrUi'), v.inVr); show($('vrMsg'), v.hasVrMsg); $('vrMsg').textContent = v.vrMsg; $('vrLabel').textContent = v.vrLabel;
+      const sp = $('spot');
+      if (v.spotMounted && !sp.firstChild) { const fr = document.createElement('iframe'); fr.title = 'Spotify: ABBA \u2014 Lay All Your Love On Me'; fr.src = 'https://open.spotify.com/embed/track/4euAGZTszWPrriggYK0HG9?utm_source=generator&theme=0'; fr.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'; fr.loading = 'lazy'; sp.appendChild(fr); }
+      sp.className = v.spotClass; sp.setAttribute('aria-hidden', v.spotHidden);
       const f = $('vrFade'); f.style.opacity = v.vrFadeOpacity; f.style.pointerEvents = v.vrFadePE; $('vrLens').style.transform = 'scale(' + v.vrFadeScale + ')';
     };
     const root = $('root');

@@ -22,6 +22,10 @@ a{color:#3ee0c5}a:hover{color:#8af0de}
 .back:hover{color:#ffffff;background:rgba(255,255,255,.06)}
 .ring{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.16);border-top-color:#3ee0c5;animation:sp .9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+.spot{position:absolute;right:20px;top:50%;width:352px;max-width:calc(100% - 32px);transform:translateY(-50%);transition:opacity .45s ease,transform .45s cubic-bezier(.2,.7,.2,1);border-radius:16px;padding:8px;background:rgba(16,12,20,.55);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 60px rgba(0,0,0,.45)}
+.spot.off{opacity:0;pointer-events:none;transform:translate(30px,-50%)}
+.spot iframe{display:block;width:100%;height:352px;border:0;border-radius:12px}
+@media (max-width:760px){.spot{top:auto;bottom:72px;right:16px;transform:none}.spot.off{transform:translateY(20px)}.spot iframe{height:152px}}
 .panel{animation:rise .35s cubic-bezier(.2,.7,.2,1)}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){.panel{animation:none}.ring{animation-duration:2.4s}}
@@ -48,6 +52,8 @@ a{color:#3ee0c5}a:hover{color:#8af0de}
       Orqaga
     </button>
   </div>
+
+  <div id="spot" class="spot off" aria-hidden="true"></div>
 
   <div id="vrUi">
     <div style="position: absolute; left: 16px; top: 16px">
