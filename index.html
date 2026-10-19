@@ -29,6 +29,22 @@ a{color:#3ee0c5}a:hover{color:#8af0de}
 .panel{animation:rise .35s cubic-bezier(.2,.7,.2,1)}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){.panel{animation:none}.ring{animation-duration:2.4s}}
+
+.guide{position:absolute;inset:0;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:32px 20px;text-align:center;background:radial-gradient(1200px 600px at 50% -10%,rgba(255,79,216,.18),transparent 60%),radial-gradient(900px 500px at 50% 110%,rgba(122,92,255,.16),transparent 60%),#120d16}
+.guide h1{margin:0;font:600 clamp(22px,4.4vw,32px)/1.25 'Sora',sans-serif;max-width:560px}
+.g-badge{font:600 12px/1 'Sora',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#ff9be9;border:1px solid rgba(255,79,216,.4);background:rgba(255,79,216,.08);padding:8px 12px;border-radius:999px}
+.g-lead{margin:0;max-width:520px;font:400 15px/1.6 'Sora',sans-serif;color:rgba(241,242,246,.75)}
+.g-lead b{color:#fff}
+.g-steps{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;width:min(440px,100%);text-align:left}
+.g-steps li{display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09)}
+.g-steps span{flex:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 14px/1 'Sora',sans-serif;color:#120d16;background:linear-gradient(135deg,#ff6fe0,#8f7bff)}
+.g-steps b{display:block;font:600 15px/1.35 'Sora',sans-serif;color:#fff}
+.g-steps small{display:block;margin-top:3px;font:400 13px/1.4 'Sora',sans-serif;color:rgba(241,242,246,.65)}
+.g-link{display:flex;gap:8px;align-items:center;width:min(440px,100%);padding:6px 6px 6px 14px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1)}
+.g-link code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;font:500 13px/1 'JetBrains Mono',monospace;color:#d9dce6}
+.g-link button{flex:none;border:0;border-radius:8px;padding:10px 14px;font:600 13px/1 'Sora',sans-serif;color:#120d16;background:#ff8fe6;cursor:pointer}
+.g-link button:hover{background:#ffb3ef}
+.g-link button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -90,15 +106,38 @@ a{color:#3ee0c5}a:hover{color:#8af0de}
     </div>
   </div>
 </div>
-<script src="js/config.js"></script>
 <script>
+  // Apple-only: macOS, iOS, iPadOS. Other systems get a short guide instead of the 3D scene (nothing heavy is downloaded).
   (function () {
+    var V = '202610191614';
     var uad = navigator.userAgentData, ua = navigator.userAgent || '', pf = navigator.platform || '';
     var apple = uad && uad.platform ? /^(macOS|iOS)$/i.test(uad.platform) : (/iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(ua) || /^(Mac|iPhone|iPad|iPod)/i.test(pf));
-    if (apple) document.write('<script src="js/setup3d.js"><\/script>');
+    if (apple) {
+      ['js/config.js', 'js/setup3d.js', 'js/app.js', 'js/component.js'].forEach(function (f) { document.write('<script src="' + f + '?v=' + V + '"><\/script>'); });
+      return;
+    }
+    var os = /Android/i.test(ua) ? 'Android' : /Windows/i.test(ua) ? 'Windows' : /CrOS/i.test(ua) ? 'ChromeOS' : /Linux/i.test(ua) ? 'Linux' : (uad && uad.platform) || 'bu qurilma';
+    var url = String(location.href).split('#')[0];
+    var root = document.getElementById('root');
+    root.innerHTML =
+      '<div class="guide">' +
+        '<div class="g-badge">Faqat Apple qurilmalari uchun</div>' +
+        '<h1>Iltimos, Apple qurilmasidan kiring</h1>' +
+        '<p class="g-lead">Bu 3D tajriba Mac, iPhone va iPad uchun yaratilgan. Siz hozir <b>' + os + '</b> qurilmasidasiz, unda sayt ochilmaydi.</p>' +
+        '<ol class="g-steps">' +
+          '<li><span>1</span><div><b>Mac’da oching</b><small>Safari yoki Chrome brauzerida</small></div></li>' +
+          '<li><span>2</span><div><b>yoki iPhone / iPad’da oching</b><small>Safari orqali</small></div></li>' +
+          '<li><span>3</span><div><b>Havolani o‘zingizga yuboring</b><small>Nusxalab, masalan Telegram’dagi “Saqlangan xabarlar”ga tashlang</small></div></li>' +
+        '</ol>' +
+        '<div class="g-link"><code>' + url.replace(/</g, '&lt;') + '</code><button type="button" id="gCopy">Nusxalash</button></div>' +
+      '</div>';
+    var btn = document.getElementById('gCopy');
+    btn.addEventListener('click', function () {
+      var done = function () { btn.textContent = 'Nusxalandi ✓'; setTimeout(function () { btn.textContent = 'Nusxalash'; }, 2200); };
+      var fallback = function () { var a = document.createElement('textarea'); a.value = url; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); done(); };
+      try { navigator.clipboard.writeText(url).then(done, fallback); } catch (e) { fallback(); }
+    });
   })();
 </script>
-<script src="js/app.js"></script>
-<script src="js/component.js"></script>
 </body>
 </html>
