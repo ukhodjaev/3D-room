@@ -13,7 +13,8 @@ window.DCLogic = DCLogic;
 
 (function () {
   const $ = (id) => document.getElementById(id);
-  const show = (el, on) => { el.style.display = on ? '' : 'none'; };
+  // elements laid out with flex keep their display value when shown again (data-d)
+  const show = (el, on) => { el.style.display = on ? (el.getAttribute('data-d') || '') : 'none'; };
   function start() {
     const comp = new Component(Object.assign({}, window.SETUP_CONFIG || {}));
     let v = {};
@@ -25,6 +26,7 @@ window.DCLogic = DCLogic;
       show($('back'), v.isFocused);
       show($('curtain'), v.showCurtain); $('curtain').style.opacity = v.curtainOpacity;
       show($('loading'), v.loadingNow); show($('failed'), v.failed); $('failMsg').textContent = v.failMsg;
+      $('blocked').style.display = v.blocked ? 'flex' : 'none'; $('copyLink').textContent = v.copyLabel;
       show($('vrUi'), v.inVr); show($('vrMsg'), v.hasVrMsg); $('vrMsg').textContent = v.vrMsg; $('vrLabel').textContent = v.vrLabel;
       const sp = $('spot');
       if (v.spotMounted && !sp.firstChild) { const fr = document.createElement('iframe'); fr.title = 'Spotify: ABBA \u2014 Lay All Your Love On Me'; fr.src = 'https://open.spotify.com/embed/track/4euAGZTszWPrriggYK0HG9?utm_source=generator&theme=0'; fr.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'; fr.loading = 'lazy'; sp.appendChild(fr); }
@@ -36,6 +38,7 @@ window.DCLogic = DCLogic;
     root.addEventListener('pointerdown', (e) => v.onRootDown && v.onRootDown(e));
     $('back').addEventListener('click', () => v.goOverview && v.goOverview());
     $('retry').addEventListener('click', () => v.retry && v.retry());
+    $('copyLink').addEventListener('click', () => v.copyLink && v.copyLink());
     $('vrExit').addEventListener('click', () => v.exitVr && v.exitVr());
     comp._mounted = true;
     comp._render();

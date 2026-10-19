@@ -18,7 +18,7 @@ class Component extends DCLogic {
     };
     this.VIEWS = [['overview', 'Umumiy'], ['pc', 'Kompyuter'], ['monitor', 'Monitor'], ['desk', 'Aksessuarlar']];
     this.RGB_CYCLE = ['#8fd4ff', '#ff4fd8', '#7dff8a', '#ffb347'];
-    this.state = { focus: 'overview', hover: null, camera: 'off', camMsg: '', sys: 'on', lines: this.welcome(), input: '', rgbOn: true, power: true, theme: 0, music: false, lamp: true, caps: false, rgb: null, ready: false, curtain: true, failed: false, failMsg: '', vr: false, vrFade: false, vrHover: null, vrMsg: '' };
+    this.state = { focus: 'overview', hover: null, camera: 'off', camMsg: '', sys: 'on', lines: this.welcome(), input: '', rgbOn: true, power: true, theme: 0, music: false, lamp: true, caps: false, rgb: null, ready: false, curtain: true, failed: false, failMsg: '', blocked: false, copied: false, vr: false, vrFade: false, vrHover: null, vrMsg: '' };
     this.api = null; this.canvas = null; this.root = null; this.tip = null;
     this.setCanvas = (el) => { if (el === this.canvas) return; this.canvas = el; if (el) this.boot(); else this.teardown(); };
     this.setRoot = (el) => { this.root = el; };
@@ -26,9 +26,26 @@ class Component extends DCLogic {
     this.setTip = (el) => { this.tip = el; };
   }
 
+  // the experience is offered on Apple devices only (macOS, iOS, iPadOS)
+  isApple() {
+    try {
+      const uad = navigator.userAgentData;
+      if (uad && uad.platform) return /^(macOS|iOS)$/i.test(uad.platform);
+      const ua = navigator.userAgent || '', pf = navigator.platform || '';
+      if (/Android|Windows|CrOS|Linux(?!.*Mac)/i.test(ua) && !/iPhone|iPad|iPod|Macintosh/i.test(ua)) return false;
+      return /iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(ua) || /^(Mac|iPhone|iPad|iPod)/i.test(pf);
+    } catch (e) { return false; }
+  }
+  copyLink() {
+    const url = String(window.location.href).split('#')[0];
+    const done = () => { this.setState({ copied: true }); clearTimeout(this.copyTimer); this.copyTimer = setTimeout(() => this.setState({ copied: false }), 2200); };
+    try { navigator.clipboard.writeText(url).then(done, () => { this.fallbackCopy(url); done(); }); } catch (e) { this.fallbackCopy(url); done(); }
+  }
+  fallbackCopy(t) { try { const a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); } catch (e) {} }
   // ---------- lifecycle ----------
   boot() {
     if (this.api || !this.canvas) return;
+    if (!this.isApple()) { if (!this.state.blocked) this.setState({ blocked: true, curtain: true, ready: false }); return; }
     if (!window.Setup3D) {
       this.tries = (this.tries || 0) + 1;
       if (this.tries > 600) { this.fail("3D dvigatel fayli yuklanmadi. Internet aloqasini tekshirib, qayta urinib ko'ring."); return; }
@@ -397,9 +414,9 @@ class Component extends DCLogic {
       views,
       goOverview: () => this.setState({ focus: 'overview' }),
       showCurtain: s.curtain, curtainOpacity: s.ready && !s.failed ? 0 : 1,
-      loadingNow: !s.failed, failed: s.failed, failMsg: s.failMsg,
+      loadingNow: !s.failed && !s.blocked, failed: s.failed && !s.blocked, blocked: !!s.blocked, copyLink: () => this.copyLink(), copyLabel: s.copied ? 'Nusxalandi' : 'Havolani nusxalash', failMsg: s.failMsg,
       retry: () => this.retry(),
-      showFps: (this.props.showFps ?? true) && s.ready,
+      showFps: (this.props.showFps ?? true) && s.ready && !s.blocked,
       fpsText: s.stats ? String(s.stats.fps) : '--',
       fpsColor: !s.stats ? '#888888' : s.stats.fps >= 50 ? '#5ee08a' : s.stats.fps >= 30 ? '#f2c94c' : '#ff6b6b',
       fpsInfo: s.stats ? ('Sifat: ' + (['Past', "O'rta", 'Yuqori', 'Ultra'][s.stats.quality] || 'Yuqori') + ' · ' + s.stats.pr.toFixed(2).replace(/0$/, '') + '×') : 'o\u2018lchanmoqda…',

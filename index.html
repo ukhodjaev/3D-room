@@ -36,7 +36,7 @@ a{color:#3ee0c5}a:hover{color:#8af0de}
   <video id="video" muted playsinline autoplay aria-hidden="true" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none"></video>
   <canvas id="canvas" aria-label="Kompyuter setapining 3D sahnasi" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab"></canvas>
 
-  <div id="fps" class="glass" role="status" style="position: absolute; right: 16px; top: 16px; padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 10px; pointer-events: none; font-family: 'JetBrains Mono', monospace">
+  <div id="fps" data-d="flex" class="glass" role="status" style="position: absolute; right: 16px; top: 16px; padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 10px; pointer-events: none; font-family: 'JetBrains Mono', monospace">
     <div id="fpsDot" style="width: 8px; height: 8px; border-radius: 50%"></div>
     <div style="display: flex; flex-direction: column; gap: 2px">
       <div style="font-size: 15px; font-weight: 700; color: #fff; line-height: 1"><span id="fpsText">--</span> <span style="font-size: 11px; font-weight: 500; color: rgba(255,255,255,.7)">FPS</span></div>
@@ -47,7 +47,7 @@ a{color:#3ee0c5}a:hover{color:#8af0de}
   <div id="tip" class="glass" role="tooltip" style="position: absolute; left: 0; top: 0; padding: 7px 11px; border-radius: 9px; font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s"></div>
 
   <div style="position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; pointer-events: none">
-    <button id="back" type="button" class="act glass panel" style="display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px; pointer-events: auto">
+    <button id="back" data-d="flex" type="button" class="act glass panel" style="display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px; pointer-events: auto">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
       Orqaga
     </button>
@@ -72,12 +72,18 @@ a{color:#3ee0c5}a:hover{color:#8af0de}
     <div id="vrLens" style="position: absolute; inset: -20%; transition: transform .6s ease; background: radial-gradient(circle at 34% 50%, rgba(140,60,255,.35) 0%, rgba(0,0,0,0) 22%), radial-gradient(circle at 66% 50%, rgba(255,60,200,.3) 0%, rgba(0,0,0,0) 22%)"></div>
   </div>
 
-  <div id="curtain" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #120d16; transition: opacity .6s ease">
-    <div id="loading" style="display: flex; flex-direction: column; align-items: center; gap: 14px">
+  <div id="curtain" data-d="flex" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #120d16; transition: opacity .6s ease">
+    <div id="loading" data-d="flex" style="display: flex; flex-direction: column; align-items: center; gap: 14px">
       <div class="ring" aria-hidden="true"></div>
       <div role="status" style="font-size: 13px; color: rgba(241,242,246,.7)">3D sahna tayyorlanmoqda…</div>
     </div>
-    <div id="failed" role="alert" style="max-width: 340px; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; padding: 0 24px">
+    <div id="blocked" role="alert" style="max-width: 380px; text-align: center; display: none; flex-direction: column; gap: 14px; align-items: center; padding: 0 24px">
+      <div style="font-size: 44px; line-height: 1" aria-hidden="true">💻</div>
+      <div style="font-size: 20px; font-weight: 600; line-height: 1.35">Bu tajriba faqat Mac, iPhone va iPad uchun</div>
+      <div style="font-size: 14px; line-height: 1.6; color: rgba(241,242,246,.72)">Saytni Apple qurilmangizda oching. Havolani nusxalab, Mac yoki iPhone'ingizga yuborishingiz mumkin.</div>
+      <button id="copyLink" type="button" class="act" style="margin-top: 4px">Havolani nusxalash</button>
+    </div>
+    <div id="failed" data-d="flex" role="alert" style="max-width: 340px; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; padding: 0 24px">
       <div style="font-size: 16px; font-weight: 600">3D sahnani ochib bo'lmadi</div>
       <div id="failMsg" style="font-size: 13px; line-height: 1.5; color: rgba(241,242,246,.7)"></div>
       <button id="retry" type="button" class="act">Qayta urinish</button>
@@ -85,7 +91,13 @@ a{color:#3ee0c5}a:hover{color:#8af0de}
   </div>
 </div>
 <script src="js/config.js"></script>
-<script src="js/setup3d.js"></script>
+<script>
+  (function () {
+    var uad = navigator.userAgentData, ua = navigator.userAgent || '', pf = navigator.platform || '';
+    var apple = uad && uad.platform ? /^(macOS|iOS)$/i.test(uad.platform) : (/iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(ua) || /^(Mac|iPhone|iPad|iPod)/i.test(pf));
+    if (apple) document.write('<script src="js/setup3d.js"><\/script>');
+  })();
+</script>
 <script src="js/app.js"></script>
 <script src="js/component.js"></script>
 </body>
